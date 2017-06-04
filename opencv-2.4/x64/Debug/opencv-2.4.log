@@ -1,0 +1,7 @@
+﻿  main.cpp
+d:\programming\imageprocessing\opencv-2.4\opencv-2.4\main.cpp(28): warning C4101: 'posY': unreferenced local variable
+d:\programming\imageprocessing\opencv-2.4\opencv-2.4\main.cpp(28): warning C4101: 'posX': unreferenced local variable
+  HandTask.cpp
+  Generating Code...
+  opencv-2.4.vcxproj -> D:\Programming\ImageProcessing\opencv-2.4\x64\Debug\opencv-2.4.exe
+  opencv-2.4.vcxproj -> D:\Programming\ImageProcessing\opencv-2.4\x64\Debug\opencv-2.4.pdb (Full PDB)
