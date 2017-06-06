@@ -33,7 +33,7 @@ int HandTask::getMaxContoursIdx(Mat& thres, vector<vector<Point>>& contours, vec
 
 		if (area > max_area) {
 			if (area > 1000) {
-				cout << "Color : " << message << "Contour size : " << area << endl;
+			//	cout << "Color : " << message << "Contour size : " << area << endl;
 				max_area = area;
 				max_idx = i;
 			}
@@ -47,7 +47,7 @@ Point HandTask::getMousePosition(Rect bound_rect, int weight)
 {
 	Point pos;
 
-	pos.x = -(bound_rect.x + bound_rect.width) / 2 * weight;
+	pos.x = (bound_rect.x + bound_rect.width) / 2 * weight;
 	pos.y = (bound_rect.y + bound_rect.height) / 2 * weight;
 
 	return pos;

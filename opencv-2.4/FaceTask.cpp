@@ -1,18 +1,18 @@
+#pragma once
 #include "FaceTask.h"
 
 string classifier = "K:/Downloads/opencv/sources/data/haarcascades/haarcascade_frontalface_default.xml";
 string save_path = "D:/Programming/ImageProcessing/opencv-2.4/trainner2.yml";
 string sample_path = "D:/Programming/ImageProcessing/opencv-2.4/dataSet/User.1.46.jpg";
 string command_file = "D:/Programming/ImageProcessing/opencv-2.4/order.txt";
-string learning_data = "D:/Programming/ImageProcessing/Face_detection_python/trainner/trainner.yml";
-//string learning_data = save_path;
+string learning_data = "D:/Programming/ImageProcessing/opencv-2.4/trainner2.yml";
 
 FaceTask::FaceTask()
 {
 }
 
 
-void data_list_read(const string& file_name, vector<Mat>& image_list, vector<int>& label_list)
+void FaceTask::data_list_read(const string& file_name, vector<Mat>& image_list, vector<int>& label_list)
 {
 
 	ifstream file(file_name.c_str(), ifstream::in);
@@ -35,7 +35,7 @@ void data_list_read(const string& file_name, vector<Mat>& image_list, vector<int
 	}
 }
 
-void ImageTrainner() {
+void FaceTask::ImageTrainner() {
 
 	vector<Mat> image_list;
 	vector<int> label_list;
@@ -64,150 +64,109 @@ void ImageTrainner() {
 }
 
 
-void WindowsFaceGate() {
+int FaceTask::WindowsFaceGate(Mat& frame, VideoCapture& cap) {
 	bool result = false;
 	clock_t limit_time;
 
-	printf("==================== Start recognition ====================");
+	cout << "==================== Start recognition ====================" << endl;
 
-	//load pre-trained data sets
 	Ptr<FaceRecognizer>  model = createLBPHFaceRecognizer();
 	model->load(learning_data);
+
+	CascadeClassifier face_cascade;
+
+	if (!face_cascade.load(classifier)) {
+		cout << " Error loading file" << endl;
+		return -2;
+	}
+
+	clock_t start = clock();
+
 
 	Mat testSample = imread(sample_path, 0);
 	int img_width = testSample.cols;
 	int img_height = testSample.rows;
 
-	CascadeClassifier face_cascade;
-	string window = "Capture - face detection";
 
-	if (!face_cascade.load(classifier)) {
-		cout << " Error loading file" << endl;
-		return;
-	}
-
-	VideoCapture cap(0);
-
-	if (!cap.isOpened())
-	{
-		cout << "exit" << endl;
-		return;
-	}
-
-	namedWindow(window, 1);
-	long count = 0;
-
-	clock_t start = clock();
 	while (true)
 	{
+		cap >> frame;
+
 		vector<Rect> faces;
-		Mat frame;
 		Mat graySacleFrame;
 		Mat original;
 		Mat test_mat;
-		Mat cropImg;
-
-		cap >> frame;
-		//cap.read(frame);
-		count = count + 1;//count frames;
 
 		if (!frame.empty()) {
+			int width = 0;
+			int height = 0;
 
-			//clone from original frame
+			Rect roi;
+
 			original = frame.clone();
 			test_mat = frame.clone();
-			//convert image to gray scale and equalize
-		//	cvtColor(original, graySacleFrame, CV_BGR2GRAY);
-			//	equalizeHist(graySacleFrame, graySacleFrame);
-
-			//convert image to gray scale and equalize
+		
 			cvtColor(frame, graySacleFrame, CV_BGR2GRAY);
 			equalizeHist(graySacleFrame, graySacleFrame);
 
-			//detect face in gray image
 			face_cascade.detectMultiScale(graySacleFrame, faces, 1.1, 3, 0, cv::Size(90, 90));
 
-			//number of faces detected
-			cout << faces.size() << " faces detected" << endl;
-			std::string frameset = std::to_string(count);
-			std::string faceset = std::to_string(faces.size());
-
-			int width = 0, height = 0;
-
-			//region of interest
-			Rect roi;
-
-			//person name
-			string Pname = "";
 			for (int i = 0; i < faces.size(); i++)
 			{
-				//region of interest
 				Rect face_i = faces[i];
-
-				//crop the roi from grya image
+				Mat face_resized;
 				Mat face = graySacleFrame(face_i);
+
+				int label = -1;
+				double confidence = 0.0;
 
 				roi.x = faces[i].x; roi.width = faces[i].width;
 				roi.y = faces[i].y; roi.height = faces[i].height;
 
-				//resizing the cropped image to suit to database image sizes
-				Mat face_resized;
 				cv::resize(face, face_resized, Size(img_width, img_height), 1.0, 1.0, INTER_CUBIC);
 				cv::resize(test_mat, test_mat, Size(img_width, img_height), 1.0, 1.0, INTER_CUBIC);
-				//recognizing what faces detected
-				int label = -1;
-				double confidence = 0;
+			
 				model->predict(face_resized, label, confidence);
 
-
-				cout << "label" << label << endl;
 				cout << " confidencde " << confidence << endl;
-				//drawing green rectagle in recognize face
-				rectangle(original, face_i, CV_RGB(255, 0, 0), 1);
+
+				rectangle(original, face_i, Scalar(255, 0, 0), 1);
 				if (confidence < 50.0) {
 					if (label == 1) {
-						Pname = "Kihyuk";
 						result = true;
 						imshow("test", face_resized);
 					}
 					else {
 						result = false;
-						Pname = "unknown";
 					}
 				}
-
-
-				int pos_x = std::max(face_i.tl().x - 10, 0);
-				int pos_y = std::max(face_i.tl().y - 10, 0);
-
-				//name the person who is in the image
-
-				putText(original, Pname, Point(pos_x, pos_y), FONT_HERSHEY_COMPLEX_SMALL, 1.0, CV_RGB(0, 255, 0), 1.0);
 			}
-			std::string rst_str = std::to_string(result);
-			cv::putText(frame, "AUTORIZED: " + rst_str, cvPoint(30, 30), FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(0, 255, 0), 1, CV_AA);
-
-			putText(original, "Person: " + Pname, Point(30, 90), CV_FONT_HERSHEY_COMPLEX_SMALL, 1.0, CV_RGB(0, 0, 255), 1.0);
-			//display to the winodw
+		
+			putText(original, "authentication: " + result,  Point(30, 90), CV_FONT_HERSHEY_COMPLEX_SMALL, 1.0, CV_RGB(0, 0, 255), 1.0);
+		
 			clock_t end = clock();
+
 			limit_time = (end - start) / (double)CLOCKS_PER_SEC;
-			printf("elapsed time : %lf\n", limit_time);
+
+			cout << "elapsed time : " << limit_time << endl;
 
 			if (limit_time > 10 && !result) {
 				printf("Auth time over\n");
 				LockWorkStation();
-				exit(1);
+				return -1;
 			}
-			else {
-				printf("Success\n");
+			else if (result) {
+				destroyAllWindows();
+				return 1;
 			}
-			cv::imshow(window, original);
+			
+			imshow("facegate", original);
 		}
 		if (waitKey(30) >= 0) break;
 	}
 }
 
-Mat image2LBP(Mat src)
+Mat FaceTask::image2LBP(Mat src)
 {
 	bool value = true;
 	Mat Image(src.rows, src.cols, CV_8UC1);
@@ -257,18 +216,13 @@ Mat image2LBP(Mat src)
 
 }
 
-void ShowIMG2LBP()
+void FaceTask::ShowIMG2LBP()
 {
 
-	for (int idx = 1; idx < 6; idx++) {
-		string imgName = "row";
-		imgName.append(1, idx + '0');
-		imgName.append(".jpg");
-		cout << imgName << endl;
-		Mat rowImg = imread(imgName);
+	Mat img = imread("User.1.39.jpg");
 
-		imshow(imgName, image2LBP(rowImg));
-	}
+
+	imshow("test", (img));
 
 	//	imshow("wow", image2LBP(imread("test1.jpg", 1)));
 	waitKey(1000000);

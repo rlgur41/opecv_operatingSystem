@@ -18,10 +18,13 @@ using namespace cv;
 
 class HandTask
 {
+
 public:
 	HandTask();
+
 	void erode_dilate(Mat&, Size);
-	int getMaxContoursIdx(Mat&, vector<vector<Point>>&, vector<Vec4i>&, int);
+	int getMaxContoursIdx(Mat&, vector<vector<Point>>&,
+						  vector<Vec4i>&, int);
 	Point getMousePosition(Rect, int);
 
 	~HandTask();

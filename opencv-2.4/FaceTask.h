@@ -23,7 +23,7 @@ public:
 
 	void data_list_read(const string& file_name, vector<Mat>& image_list, vector<int>& label_list);
 	void ImageTrainner();
-	void WindowsFaceGate();
+	int WindowsFaceGate(Mat&, VideoCapture&);
 	void ShowIMG2LBP();
 	Mat image2LBP(Mat src);
 
