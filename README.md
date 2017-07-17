@@ -3,15 +3,21 @@
 OpenCV, C++ 사용
 
 
+
+
 얼굴인식
+
 ![Alt text](https://github.com/rlgur41/opecv_operatingSystem/blob/master/facefecog.PNG)
 
 마우스 구현
+
 ![Alt text](https://github.com/rlgur41/opecv_operatingSystem/blob/master/yellow_mouse.PNG)
 
 마우스 좌클릭
+
 ![Alt text](https://github.com/rlgur41/opecv_operatingSystem/blob/master/bluemouse.PNG)
 
 마우스 우클릭
+
 ![Alt text](https://github.com/rlgur41/opecv_operatingSystem/blob/master/right.PNG)
 
